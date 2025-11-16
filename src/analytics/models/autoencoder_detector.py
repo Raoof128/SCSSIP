@@ -13,11 +13,17 @@ from loguru import logger
 try:
     import tensorflow as tf
     from tensorflow import keras
-    from tensorflow.keras import layers, Model
+    from tensorflow.keras import layers
+    from tensorflow.keras.models import Model
     from tensorflow.keras.callbacks import EarlyStopping
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
+    tf = None
+    keras = None
+    layers = None
+    Model = None
+    EarlyStopping = None
     logger.warning("TensorFlow not available, Autoencoder detector disabled")
 
 

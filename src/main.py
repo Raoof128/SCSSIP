@@ -12,7 +12,7 @@ import click
 # Add src directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from utils.config import ConfigManager
+from src.utils.config import ConfigManager
 
 
 @click.group()
@@ -69,8 +69,8 @@ def serve(ctx, host, port, workers):
 def ingest(ctx, source, start_time, end_time, limit):
     """Ingest data from a security data source."""
     from datetime import datetime
-    from data_ingestion.adapters.sample_data_generator import SampleDataGenerator
-    from data_ingestion.stream_processor import EventBuffer
+    from src.data_ingestion.adapters.sample_data_generator import SampleDataGenerator
+    from src.data_ingestion.stream_processor import EventBuffer
 
     logger.info(f"Starting data ingestion from {source}")
 

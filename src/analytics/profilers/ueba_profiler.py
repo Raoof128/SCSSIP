@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from loguru import logger
 
-from data_ingestion.adapters.base_adapter import SecurityEvent, EventType
-from analytics.feature_extractor import FeatureExtractor
+from ...data_ingestion.adapters.base_adapter import SecurityEvent, EventType
+from ..feature_extractor import FeatureExtractor
 
 
 class EntityProfile:

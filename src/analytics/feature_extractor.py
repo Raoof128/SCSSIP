@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from loguru import logger
 
-from data_ingestion.adapters.base_adapter import SecurityEvent, EventType
+from ..data_ingestion.adapters.base_adapter import SecurityEvent, EventType
 
 
 class FeatureExtractor:

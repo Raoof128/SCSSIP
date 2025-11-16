@@ -4,8 +4,8 @@ import pytest
 import numpy as np
 from datetime import datetime, timedelta
 
-from analytics.feature_extractor import FeatureExtractor, FeatureStore
-from data_ingestion.adapters.base_adapter import SecurityEvent, EventType
+from src.analytics.feature_extractor import FeatureExtractor, FeatureStore
+from src.data_ingestion.adapters.base_adapter import SecurityEvent, EventType
 
 
 class TestFeatureExtractor:

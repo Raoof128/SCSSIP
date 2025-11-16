@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 
-from analytics.models.isolation_forest_detector import IsolationForestDetector
+from src.analytics.models.isolation_forest_detector import IsolationForestDetector
 
 
 class TestIsolationForestDetector:

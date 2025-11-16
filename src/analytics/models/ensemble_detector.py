@@ -8,9 +8,9 @@ from typing import List, Dict, Any, Optional, Tuple
 from enum import Enum
 from loguru import logger
 
-from analytics.models.isolation_forest_detector import IsolationForestDetector
-from analytics.models.autoencoder_detector import AutoencoderDetector
-from analytics.models.statistical_detector import StatisticalDetector
+from src.analytics.models.isolation_forest_detector import IsolationForestDetector
+from src.analytics.models.autoencoder_detector import AutoencoderDetector
+from src.analytics.models.statistical_detector import StatisticalDetector
 
 
 class VotingStrategy(str, Enum):

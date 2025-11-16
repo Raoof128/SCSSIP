@@ -4,10 +4,10 @@ import pytest
 import numpy as np
 from datetime import datetime, timedelta
 
-from analytics.feature_extractor import FeatureExtractor
-from analytics.models.isolation_forest_detector import IsolationForestDetector
-from analytics.models.ensemble_detector import EnsembleDetector
-from data_ingestion.adapters.base_adapter import SecurityEvent, EventType
+from src.analytics.feature_extractor import FeatureExtractor
+from src.analytics.models.isolation_forest_detector import IsolationForestDetector
+from src.analytics.models.ensemble_detector import EnsembleDetector
+from src.data_ingestion.adapters.base_adapter import SecurityEvent, EventType
 
 
 class TestPerformanceBenchmarks:

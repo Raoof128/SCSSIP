@@ -15,18 +15,26 @@ try:
     from kafka import KafkaProducer, KafkaConsumer
     KAFKA_AVAILABLE = True
 except ImportError:
+    KafkaProducer = None
+    KafkaConsumer = None
     KAFKA_AVAILABLE = False
     logger.warning("kafka-python not available, Kafka streaming disabled")
 
 try:
     import redis.asyncio as aioredis
     REDIS_AVAILABLE = True
+    REDIS_ASYNC = True
 except ImportError:
     try:
         import redis
+        aioredis = redis
         REDIS_AVAILABLE = True
+        REDIS_ASYNC = False
     except ImportError:
+        redis = None
+        aioredis = None
         REDIS_AVAILABLE = False
+        REDIS_ASYNC = False
         logger.warning("redis not available, Redis streaming disabled")
 
 
@@ -178,12 +186,22 @@ class RedisStreamProcessor(StreamProcessor):
     async def _get_client(self):
         """Get or create Redis client."""
         if self.client is None:
-            self.client = await aioredis.create_redis_pool(
-                f'redis://{self.host}:{self.port}',
-                password=self.password,
-                db=self.db,
-                encoding='utf-8'
-            )
+            if REDIS_ASYNC:
+                self.client = await aioredis.create_redis_pool(
+                    f'redis://{self.host}:{self.port}',
+                    password=self.password,
+                    db=self.db,
+                    encoding='utf-8'
+                )
+            else:
+                # Fallback to sync Redis
+                self.client = aioredis.Redis(
+                    host=self.host,
+                    port=self.port,
+                    password=self.password,
+                    db=self.db,
+                    decode_responses=True
+                )
         return self.client
 
     async def produce(self, stream: str, message: Dict[str, Any]) -> None:

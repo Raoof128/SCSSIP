@@ -5,8 +5,14 @@ Connects to Elasticsearch and retrieves security events.
 
 from typing import AsyncIterator, Dict, Any, Optional
 from datetime import datetime
-from elasticsearch import AsyncElasticsearch
-from elasticsearch.helpers import async_scan
+try:
+    from elasticsearch import AsyncElasticsearch
+    from elasticsearch.helpers import async_scan
+    ELASTICSEARCH_AVAILABLE = True
+except ImportError:
+    AsyncElasticsearch = None
+    async_scan = None
+    ELASTICSEARCH_AVAILABLE = False
 from loguru import logger
 
 from .base_adapter import BaseAdapter, SecurityEvent, EventType
@@ -26,6 +32,9 @@ class ElasticAdapter(BaseAdapter):
                 - indices: List of index patterns to query
                 - verify_ssl: SSL verification (default: True)
         """
+        if not ELASTICSEARCH_AVAILABLE:
+            raise ImportError("elasticsearch package required for ElasticAdapter")
+
         super().__init__("elastic", config)
         self.hosts = config.get('hosts', ['https://localhost:9200'])
         self.api_key = config.get('api_key')

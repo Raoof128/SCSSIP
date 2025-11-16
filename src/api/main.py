@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 import time
 
-from api.v1 import anomalies, entities, threats, models, metrics
+from src.api.v1 import anomalies, entities, threats, models, metrics
 
 # Create FastAPI application
 app = FastAPI(
