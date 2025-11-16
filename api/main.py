@@ -7,6 +7,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.routers import compliance, risk, sboms, vulnerabilities
 from src.common.config import get_settings
 from src.database.base import init_db
 
@@ -130,9 +131,7 @@ async def info() -> dict[str, Any]:
     }
 
 
-# Import routers
-from api.routers import compliance, risk, sboms, vulnerabilities
-
+# Include API routers
 app.include_router(sboms.router, prefix="/api/v1/sboms", tags=["SBOMs"])
 app.include_router(vulnerabilities.router, prefix="/api/v1/vulnerabilities", tags=["Vulnerabilities"])
 app.include_router(risk.router, prefix="/api/v1/risk", tags=["Risk Scoring"])
