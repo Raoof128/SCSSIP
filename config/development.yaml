@@ -1,0 +1,67 @@
+app:
+  name: threat-hunting-platform
+  environment: development
+  host: 0.0.0.0
+  port: 8000
+  debug: true
+  log_level: DEBUG
+  max_workers: 2
+
+database:
+  postgres:
+    host: localhost
+    port: 5432
+    database: threat_hunting_dev
+    user: dev_user
+    password: dev_password
+    pool_size: 5
+    max_overflow: 10
+
+  influxdb:
+    url: http://localhost:8086
+    token: dev_token
+    org: dev-org
+    bucket: dev-metrics
+
+streaming:
+  redis:
+    host: localhost
+    port: 6379
+    db: 0
+
+  kafka:
+    bootstrap_servers: localhost:9092
+    consumer_group: dev-consumer-group
+
+# Simplified configuration for development
+# Inherits most settings from production.yaml
+# Only override necessary development-specific settings
+
+analytics:
+  models:
+    isolation_forest:
+      n_estimators: 100  # Reduced for faster training
+    autoencoder:
+      epochs: 10  # Reduced for faster training
+
+  training:
+    auto_retrain: false
+    min_samples_for_training: 1000  # Lower threshold for dev
+
+api:
+  authentication:
+    enabled: false  # Disabled for easier development
+  rate_limiting:
+    enabled: false
+  cors:
+    allow_origins: ['*']
+
+monitoring:
+  logging:
+    level: DEBUG
+    format: console
+
+performance:
+  batch_processing:
+    batch_size: 100
+    worker_threads: 2

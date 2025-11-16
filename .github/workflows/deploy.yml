@@ -1,0 +1,63 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ secrets.CONTAINER_REGISTRY }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Extract version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ${{ secrets.CONTAINER_REGISTRY }}/threat-hunting-platform:${{ steps.get_version.outputs.VERSION }}
+          ${{ secrets.CONTAINER_REGISTRY }}/threat-hunting-platform:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Deploy to Kubernetes (placeholder)
+      run: |
+        echo "Deploying version ${{ steps.get_version.outputs.VERSION }}"
+        # Add actual deployment commands here
+        # kubectl set image deployment/threat-hunting-platform ...
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## Changes in this Release
+          - Automated deployment from tag ${{ github.ref }}
+
+          ## Deployment
+          Docker image: `${{ secrets.CONTAINER_REGISTRY }}/threat-hunting-platform:${{ steps.get_version.outputs.VERSION }}`
+        draft: false
+        prerelease: false
