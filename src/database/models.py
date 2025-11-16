@@ -17,7 +17,6 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from src.common.enums import (
@@ -48,7 +47,7 @@ class SBOM(Base):
     # Metadata
     supplier_name = Column(String(500), nullable=True)
     manufacturer_name = Column(String(500), nullable=True)
-    authors = Column(JSONB, nullable=True)  # List of author objects
+    authors = Column(JSON, nullable=True)  # List of author objects
     timestamp = Column(DateTime, nullable=True)
 
     # Processing
@@ -80,10 +79,10 @@ class SBOM(Base):
     # Compliance
     slsa_level = Column(Integer, default=0, nullable=False)
     ntia_compliant = Column(Boolean, default=False, nullable=False)
-    compliance_issues = Column(JSONB, nullable=True)  # List of compliance issues
+    compliance_issues = Column(JSON, nullable=True)  # List of compliance issues
 
     # Raw data
-    raw_sbom = Column(JSONB, nullable=True)  # Original SBOM JSON
+    raw_sbom = Column(JSON, nullable=True)  # Original SBOM JSON
 
     # Relationships
     components = relationship(
@@ -120,7 +119,7 @@ class Component(Base):
     author = Column(String(500), nullable=True)
 
     # External references
-    external_references = Column(JSONB, nullable=True)  # List of external refs
+    external_references = Column(JSON, nullable=True)  # List of external refs
     homepage_url = Column(String(1000), nullable=True)
     repository_url = Column(String(1000), nullable=True)
 
@@ -136,7 +135,10 @@ class Component(Base):
         "ComponentLicense", back_populates="component", cascade="all, delete-orphan"
     )
     sbom_associations = relationship(
-        "SBOMComponent", back_populates="component", cascade="all, delete-orphan"
+        "SBOMComponent",
+        back_populates="component",
+        cascade="all, delete-orphan",
+        foreign_keys="SBOMComponent.component_id"
     )
     vulnerabilities = relationship(
         "Vulnerability", secondary="component_vulnerabilities", back_populates="components"
@@ -283,8 +285,8 @@ class Vulnerability(Base):
     epss_percentile = Column(Float, nullable=True)
 
     # Affected versions
-    affected_versions = Column(JSONB, nullable=True)  # List of version ranges
-    patched_versions = Column(JSONB, nullable=True)  # List of patched versions
+    affected_versions = Column(JSON, nullable=True)  # List of version ranges
+    patched_versions = Column(JSON, nullable=True)  # List of patched versions
 
     # References
     references = relationship(
@@ -292,10 +294,10 @@ class Vulnerability(Base):
     )
 
     # CWE (Common Weakness Enumeration)
-    cwe_ids = Column(JSONB, nullable=True)  # List of CWE IDs
+    cwe_ids = Column(JSON, nullable=True)  # List of CWE IDs
 
     # Raw data
-    raw_data = Column(JSONB, nullable=True)
+    raw_data = Column(JSON, nullable=True)
 
     # Tracking
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -327,7 +329,7 @@ class VulnerabilityReference(Base):
     vulnerability_id = Column(Integer, ForeignKey("vulnerabilities.id"), nullable=False)
     url = Column(String(2000), nullable=False)
     source = Column(String(200), nullable=True)  # e.g., "CONFIRM", "EXPLOIT", "PATCH"
-    tags = Column(JSONB, nullable=True)  # List of tags
+    tags = Column(JSON, nullable=True)  # List of tags
 
     # Relationships
     vulnerability = relationship("Vulnerability", back_populates="references")
