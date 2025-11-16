@@ -1,0 +1,173 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "vulnerable-web-app",
+  "documentNamespace": "https://example.com/spdx/vulnerable-web-app-1.0.0",
+  "creationInfo": {
+    "created": "2021-12-10T10:29:00Z",
+    "creators": [
+      "Tool: sbom-security-platform-1.0.0",
+      "Person: Security Team (security@example.com)"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-vulnerable-web-app",
+      "name": "vulnerable-web-app",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Example Inc",
+      "downloadLocation": "https://github.com/example/vulnerable-web-app",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2021 Example Inc",
+      "description": "Demo application with Log4Shell vulnerability",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.example/vulnerable-web-app@1.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-log4j-core",
+      "name": "log4j-core",
+      "versionInfo": "2.14.1",
+      "supplier": "Organization: Apache Software Foundation",
+      "downloadLocation": "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.14.1/log4j-core-2.14.1.jar",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6e3a8c4ef7f8f1a5c9c6d2f3e4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3"
+        }
+      ],
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2021 Apache Software Foundation",
+      "description": "Apache Log4j Core - VULNERABLE TO CVE-2021-44228 (Log4Shell)",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.logging.log4j/log4j-core@2.14.1"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:apache:log4j:2.14.1:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-log4j-api",
+      "name": "log4j-api",
+      "versionInfo": "2.14.1",
+      "supplier": "Organization: Apache Software Foundation",
+      "downloadLocation": "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.14.1/log4j-api-2.14.1.jar",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "7e4a8c5ef8f9f2a6c0c7d3f4e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4"
+        }
+      ],
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2021 Apache Software Foundation",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.logging.log4j/log4j-api@2.14.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-jackson-databind",
+      "name": "jackson-databind",
+      "versionInfo": "2.13.0",
+      "supplier": "Organization: FasterXML",
+      "downloadLocation": "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.13.0/jackson-databind-2.13.0.jar",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.13.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-spring-core",
+      "name": "spring-core",
+      "versionInfo": "5.3.13",
+      "supplier": "Organization: VMware Inc",
+      "downloadLocation": "https://repo1.maven.org/maven2/org/springframework/spring-core/5.3.13/spring-core-5.3.13.jar",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-core@5.3.13"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-commons-io",
+      "name": "commons-io",
+      "versionInfo": "2.11.0",
+      "supplier": "Organization: Apache Software Foundation",
+      "downloadLocation": "https://repo1.maven.org/maven2/commons-io/commons-io/2.11.0/commons-io-2.11.0.jar",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-io/commons-io@2.11.0"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-vulnerable-web-app",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-vulnerable-web-app",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-core",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-vulnerable-web-app",
+      "relatedSpdxElement": "SPDXRef-Package-spring-core",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-vulnerable-web-app",
+      "relatedSpdxElement": "SPDXRef-Package-jackson-databind",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-log4j-core",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-spring-core",
+      "relatedSpdxElement": "SPDXRef-Package-commons-io",
+      "relationshipType": "DEPENDS_ON"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-01-15T14:30:00Z",
+    "tools": [
+      {
+        "vendor": "SBOM Security Platform",
+        "name": "sbom-generator",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "secure-banking-app",
+      "version": "2.5.0",
+      "description": "Secure banking application with updated dependencies",
+      "purl": "pkg:maven/com.bank/secure-banking-app@2.5.0",
+      "bom-ref": "pkg:maven/com.bank/secure-banking-app@2.5.0",
+      "supplier": {
+        "name": "SecureBank Inc",
+        "url": ["https://securebank.example.com"]
+      }
+    },
+    "authors": [
+      {
+        "name": "DevSecOps Team",
+        "email": "devsecops@securebank.example.com"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:maven/org.apache.logging.log4j/log4j-core@2.17.1",
+      "group": "org.apache.logging.log4j",
+      "name": "log4j-core",
+      "version": "2.17.1",
+      "description": "Apache Log4j Core - PATCHED (No CVE-2021-44228)",
+      "purl": "pkg:maven/org.apache.logging.log4j/log4j-core@2.17.1",
+      "cpe": "cpe:2.3:a:apache:log4j:2.17.1:*:*:*:*:*:*:*",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0",
+            "name": "Apache License 2.0"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://logging.apache.org/log4j/2.x/"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40fastify/cors@8.2.0",
+      "name": "@fastify/cors",
+      "version": "8.2.0",
+      "description": "Fastify CORS plugin",
+      "purl": "pkg:npm/%40fastify/cors@8.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/cryptography@41.0.7",
+      "name": "cryptography",
+      "version": "41.0.7",
+      "description": "Python cryptography library",
+      "purl": "pkg:pypi/cryptography@41.0.7",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause OR Apache-2.0"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:maven/com.bank/secure-banking-app@2.5.0",
+      "dependsOn": [
+        "pkg:maven/org.apache.logging.log4j/log4j-core@2.17.1",
+        "pkg:npm/%40fastify/cors@8.2.0",
+        "pkg:pypi/cryptography@41.0.7"
+      ]
+    }
+  ]
+}

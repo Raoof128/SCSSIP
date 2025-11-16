@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: sbom-postgres
+    environment:
+      POSTGRES_USER: sbom_user
+      POSTGRES_PASSWORD: sbom_pass
+      POSTGRES_DB: sbom_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sbom_user -d sbom_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sbom-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: sbom-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sbom-network
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sbom-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://sbom_user:sbom_pass@postgres:5432/sbom_db
+      REDIS_URL: redis://redis:6379/0
+      DEBUG: "True"
+      ENVIRONMENT: development
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./api:/app/api
+      - ./examples:/app/examples
+      - ./alembic:/app/alembic
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - sbom-network
+
+  # Database Migrations (run once)
+  migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sbom-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://sbom_user:sbom_pass@postgres:5432/sbom_db
+    volumes:
+      - ./alembic:/app/alembic
+      - ./src:/app/src
+    command: alembic upgrade head
+    networks:
+      - sbom-network
+    profiles:
+      - migration
+
+networks:
+  sbom-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
