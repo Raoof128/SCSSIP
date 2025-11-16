@@ -50,16 +50,21 @@ app = FastAPI(
     ## Features
 
     * **SBOM Ingestion**: Parse CycloneDX and SPDX formats
-    * **Vulnerability Correlation**: Match components to CVEs from multiple feeds
-    * **Risk Scoring**: Multi-factor risk assessment
-    * **Compliance**: SLSA framework and NTIA validation
+    * **Vulnerability Correlation**: NVD, OSV, GitHub Advisory integration
+    * **Risk Scoring**: Multi-factor algorithm (vulnerability, license, signing, depth)
+    * **Compliance**: SLSA L1-L3 and NTIA minimum elements validation
+    * **Reporting**: HTML/PDF compliance and risk reports
 
-    ## Phase 1 Capabilities
+    ## Complete Platform Capabilities
 
-    - SBOM parsing (CycloneDX 1.4+, SPDX 2.3+)
-    - Component extraction and storage
-    - Dependency graph analysis
-    - License risk assessment
+    - SBOM parsing (CycloneDX 1.4-1.6, SPDX 2.2-3.0)
+    - Component extraction with PURL/CPE matching
+    - Vulnerability correlation from 3+ feeds (NVD, OSV, GitHub)
+    - EPSS exploit prediction scores
+    - Multi-factor risk scoring (5 factors)
+    - SLSA framework validation (Levels 0-3)
+    - NTIA compliance checking
+    - Automated security reports
     """,
     lifespan=lifespan,
     debug=settings.debug,
@@ -114,19 +119,24 @@ async def info() -> dict[str, Any]:
         ],
         "features": {
             "sbom_parsing": True,
-            "vulnerability_correlation": False,  # Phase 2
-            "risk_scoring": False,  # Phase 3
-            "compliance_checking": False,  # Phase 4
+            "vulnerability_correlation": True,
+            "risk_scoring": True,
+            "compliance_checking": True,
+            "reporting": True,
         },
-        "phase": "Phase 1 - SBOM Ingestion & Parsing",
+        "vulnerability_sources": ["NVD", "OSV", "GitHub Advisory"],
+        "compliance_frameworks": ["SLSA (L0-L3)", "NTIA Minimum Elements"],
+        "phase": "Complete Platform - All Phases Implemented",
     }
 
 
-# Import routers (to be created in future phases)
-# from api.routers import sbom, components, vulnerabilities
-# app.include_router(sbom.router, prefix="/api/v1/sboms", tags=["SBOMs"])
-# app.include_router(components.router, prefix="/api/v1/components", tags=["Components"])
-# app.include_router(vulnerabilities.router, prefix="/api/v1/vulnerabilities", tags=["Vulnerabilities"])
+# Import routers
+from api.routers import compliance, risk, sboms, vulnerabilities
+
+app.include_router(sboms.router, prefix="/api/v1/sboms", tags=["SBOMs"])
+app.include_router(vulnerabilities.router, prefix="/api/v1/vulnerabilities", tags=["Vulnerabilities"])
+app.include_router(risk.router, prefix="/api/v1/risk", tags=["Risk Scoring"])
+app.include_router(compliance.router, prefix="/api/v1/compliance", tags=["Compliance"])
 
 if __name__ == "__main__":
     import uvicorn
