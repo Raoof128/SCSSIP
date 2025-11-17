@@ -118,7 +118,7 @@ This platform implements a **multi-layered behavioral analytics approach** that 
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/threat-hunting-platform.git
+git clone https://github.com/Raoof128/SCSSIP.git
 cd threat-hunting-platform
 
 # Create virtual environment
@@ -155,15 +155,42 @@ docker-compose logs -f threat-hunting-api
 # Open browser to http://localhost:8000/docs
 ```
 
+### **Using Makefile (Recommended)**
+
+```bash
+# Complete setup
+make setup
+
+# Start services and run
+make dev
+
+# Run tests
+make test
+
+# See all available commands
+make help
+```
+
 ---
 
 ## 📚 Documentation
 
+### Core Documentation
 - **[Architecture Overview](docs/architecture/ARCHITECTURE.md)** - System design and data flow
-- **[API Reference](docs/api/API_REFERENCE.md)** - REST API endpoints and schemas
-- **[Deployment Guide](docs/deployment/DEPLOYMENT.md)** - Production deployment instructions
-- **[Model Training](docs/models/TRAINING.md)** - ML model training and evaluation
-- **[Configuration](docs/configuration/CONFIG.md)** - Configuration reference
+- **[API Reference](docs/API_REFERENCE.md)** - REST API endpoints and schemas
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[CHANGELOG](CHANGELOG.md)** - Version history and release notes
+
+### Community & Contributing
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community guidelines
+- **[Security Policy](SECURITY.md)** - Vulnerability reporting and security practices
+
+### Examples & Tutorials
+- **[Examples](examples/)** - Practical usage examples
+  - [Basic Usage](examples/01_basic_usage.py) - Getting started with anomaly detection
+  - [API Client](examples/02_api_client.py) - Using the REST API
+  - [Custom Detectors](examples/03_custom_detector.py) - Building custom detection models
 
 ---
 
@@ -286,7 +313,9 @@ Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidel
 ## 📞 Contact
 
 **Project Maintainer:** Your Name
-**Email:** your.email@example.com
+**Email:** security@threat-hunting-platform.dev
+**Issues:** https://github.com/Raoof128/SCSSIP/issues
+**Discussions:** https://github.com/Raoof128/SCSSIP/discussions
 **LinkedIn:** [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
 **Portfolio:** [yourportfolio.com](https://yourportfolio.com)
 

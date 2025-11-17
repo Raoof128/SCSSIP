@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: threat-hunting-config
+  namespace: threat-hunting
+data:
+  # Database
+  postgres_host: "postgres.threat-hunting.svc.cluster.local"
+  postgres_port: "5432"
+  postgres_db: "threat_hunting"
+  postgres_user: "threat_hunter"
+
+  # Redis
+  redis_host: "redis.threat-hunting.svc.cluster.local"
+  redis_port: "6379"
+
+  # Kafka
+  kafka_bootstrap_servers: "kafka.threat-hunting.svc.cluster.local:9092"
+
+  # InfluxDB
+  influxdb_url: "http://influxdb.threat-hunting.svc.cluster.local:8086"
+  influxdb_org: "threat-hunting"
+  influxdb_bucket: "behavioral_metrics"
+
+  # Application
+  app_name: "threat-hunting-platform"
+  app_host: "0.0.0.0"
+  app_port: "8000"
+  log_level: "INFO"
+  max_workers: "4"
+  batch_size: "1000"
+
+  # ML Configuration
+  ml_anomaly_threshold: "0.95"
+  ml_ensemble_voting_strategy: "weighted"
+  ml_retrain_interval_hours: "24"
+
+  # UEBA
+  ueba_enabled: "true"
+  ueba_baseline_days: "30"
+  ueba_min_events_for_profile: "100"
+
+  # Monitoring
+  prometheus_enabled: "true"
+  prometheus_port: "9090"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: threat-hunting-app-config
+  namespace: threat-hunting
+data:
+  production.yaml: |
+    database:
+      host: postgres.threat-hunting.svc.cluster.local
+      port: 5432
+      name: threat_hunting
+      pool_size: 20
+      max_overflow: 10
+
+    redis:
+      host: redis.threat-hunting.svc.cluster.local
+      port: 6379
+      db: 0
+
+    kafka:
+      bootstrap_servers:
+        - kafka.threat-hunting.svc.cluster.local:9092
+      topics:
+        events: security-events
+        anomalies: anomalies
+        leads: threat-leads
+
+    ml_models:
+      path: /app/models/trained
+      baseline_path: /app/models/baselines
+      retrain_interval_hours: 24
+
+    logging:
+      level: INFO
+      format: json
+      handlers:
+        - console
+        - file
+
+    api:
+      cors_origins:
+        - https://dashboard.example.com
+      rate_limit: 100
+      timeout: 30
