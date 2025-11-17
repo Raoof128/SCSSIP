@@ -2,13 +2,105 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, claude/** ]
   pull_request:
     branches: [ main, develop ]
 
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_VERSION: "1.7.0"
+
 jobs:
-  test:
+  # Code Quality & Linting
+  lint:
+    name: Code Quality Checks
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      run: poetry install --no-interaction
+
+    - name: Check code formatting (Black)
+      run: poetry run black --check .
+
+    - name: Lint with Ruff
+      run: poetry run ruff check . --output-format=github
+
+    - name: Type checking (mypy)
+      run: poetry run mypy src api --ignore-missing-imports || true
+
+  # Security Scanning
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: poetry install --no-interaction
+
+    - name: Security audit with pip-audit
+      run: |
+        pip install pip-audit
+        pip-audit --require-hashes --disable-pip || true
+
+    - name: Run Bandit security linter
+      run: |
+        poetry add --group dev bandit
+        poetry run bandit -r src api -f json -o bandit-report.json || true
+
+    - name: Run Trivy vulnerability scanner (filesystem)
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Unit & Integration Tests
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    needs: [lint]
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+      fail-fast: false
 
     services:
       postgres:
@@ -38,52 +130,67 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: ${{ matrix.python-version }}
 
     - name: Install Poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - name: Cache Poetry dependencies
+    - name: Cache dependencies
       uses: actions/cache@v3
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        key: ${{ runner.os }}-py${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
     - name: Install dependencies
-      run: |
-        poetry install --no-interaction
+      run: poetry install --no-interaction
 
-    - name: Run linters
-      run: |
-        poetry run black --check .
-        poetry run ruff check .
+    - name: Run unit tests
+      run: poetry run pytest tests/unit -v --tb=short
 
-    - name: Run type checker
-      run: |
-        poetry run mypy src || true
-
-    - name: Run tests
+    - name: Run integration tests
       env:
         DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
         REDIS_URL: redis://localhost:6379/0
       run: |
-        poetry run pytest --cov=src --cov-report=xml --cov-report=term
+        poetry run pytest tests/integration -v --tb=short
+
+    - name: Run all tests with coverage
+      env:
+        DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+      run: |
+        poetry run pytest --cov=src --cov=api --cov-report=xml --cov-report=term --cov-report=html
+
+    - name: Check coverage threshold
+      run: |
+        poetry run coverage report --fail-under=39
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.11'
       with:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
+        fail_ci_if_error: false
 
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v4
+      if: matrix.python-version == '3.11'
+      with:
+        name: coverage-report
+        path: htmlcov/
+
+  # Docker Build & Scan
   build:
+    name: Build & Scan Docker Image
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, security]
 
     steps:
     - uses: actions/checkout@v4
@@ -99,33 +206,87 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and push Docker image
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: |
-          ghcr.io/${{ github.repository }}:${{ github.sha }}
-          ghcr.io/${{ github.repository }}:latest
+        load: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  security-scan:
+    - name: Run Trivy vulnerability scanner (container)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ghcr.io/${{ github.repository }}:latest
+        format: 'sarif'
+        output: 'trivy-container-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy container results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-container-results.sarif'
+
+    - name: Push Docker image
+      if: github.event_name != 'pull_request'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+
+  # CodeQL Analysis
+  codeql:
+    name: CodeQL Security Analysis
     runs-on: ubuntu-latest
-    needs: build
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: python
+        queries: security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  # Deployment (optional - only on main branch)
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: 'trivy-results.sarif'
+    - name: Deploy notification
+      run: |
+        echo "🚀 Deployment would happen here"
+        echo "Image: ghcr.io/${{ github.repository }}:${{ github.sha }}"

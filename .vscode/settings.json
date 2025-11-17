@@ -1,0 +1,92 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.terminal.activateEnvironment": true,
+
+  // Formatting
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+
+  // Black formatter settings
+  "black-formatter.args": [
+    "--line-length=100"
+  ],
+
+  // Ruff linter settings
+  "ruff.lint.args": [
+    "--config=${workspaceFolder}/pyproject.toml"
+  ],
+
+  // Mypy type checking
+  "python.linting.mypyEnabled": true,
+  "python.linting.mypyArgs": [
+    "--ignore-missing-imports",
+    "--no-strict-optional"
+  ],
+
+  // Testing
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests",
+    "-v",
+    "--tb=short"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+
+  // Editor settings
+  "editor.rulers": [100],
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  // File associations
+  "files.associations": {
+    "*.yml": "yaml",
+    "*.yaml": "yaml",
+    ".env*": "properties",
+    "Dockerfile*": "dockerfile"
+  },
+
+  // Exclude from file watcher
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.venv/**": true,
+    "**/__pycache__/**": true,
+    "**/.pytest_cache/**": true,
+    "**/.mypy_cache/**": true,
+    "**/.ruff_cache/**": true,
+    "**/htmlcov/**": true
+  },
+
+  // Search exclude
+  "search.exclude": {
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/htmlcov": true,
+    "**/poetry.lock": true
+  },
+
+  // Docker extension
+  "docker.images.label": "latest",
+  "docker.containers.sortBy": "CreatedTime",
+
+  // Git settings
+  "git.ignoreLimitWarning": true,
+
+  // SQL formatting
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
+  }
+}
